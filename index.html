@@ -5,11 +5,103 @@
     <meta charset="UTF-8" />
     <title>Homepage</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="stylesheet/stylesheet.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"></script>
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
 
+    <!-- Load jQuery first -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- Then load Bootstrap JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Load Typeahead and Bloodhound libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
+    <script src="tags.js"></script>
+
+    <!-- Your custom script -->
+    <script>
+        // Wait for the DOM to be ready
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get the avatar icon and toggle button elements
+            var avatarIcon = document.getElementById('avatarIcon');
+            var avatarToggle = document.getElementById('avatarToggle');
+
+            // Initial state (online)
+            var isOnline = true;
+
+            // Set the initial border color to green
+            avatarIcon.style.border = '2px solid green';
+
+            // Add click event listener to the toggle button
+            avatarToggle.addEventListener('click', function () {
+                // Toggle the online/offline status
+                isOnline = !isOnline;
+
+                // Update the border color based on the status
+                avatarIcon.style.border = isOnline ? '2px solid green' : '2px solid grey';
+            });
+
+            // Enable Bootstrap tooltips
+            var bookmarkIcons = document.querySelectorAll('.bi-save2');
+            bookmarkIcons.forEach(function (icon) {
+                icon.setAttribute('data-bs-toggle', 'tooltip');
+                icon.setAttribute('data-bs-placement', 'top');
+                icon.setAttribute('title', 'Add to Bookmarks');
+
+                // Enable the Bootstrap Tooltip
+                new bootstrap.Tooltip(icon);
+
+                icon.addEventListener('click', function () {
+                    // Clone the parent card and append it to the Offcanvas body
+                    var cardClone = icon.closest('.card').cloneNode(true);
+                    document.getElementById('offcanvasBody').appendChild(cardClone);
+                });
+            });
+
+            // Enable autocomplete for the search box
+            var searchInput = document.querySelector('.form-control');
+
+
+            var tagsBloodhound = new Bloodhound({
+                datumTokenizer: Bloodhound.tokenizers.whitespace,
+                queryTokenizer: Bloodhound.tokenizers.whitespace,
+                local: window.searchTags
+            });
+
+            // Initialize the typeahead with Bloodhound
+            $(searchInput).typeahead({
+                hint: true,
+                highlight: true,
+                minLength: 1
+            }, {
+                name: 'tags',
+                source: tagsBloodhound
+            });
+
+        });
+    </script>
+
+    <!-- Media Query for Tablet-sized Screens -->
+    <style>
+        @media (max-width: 768px) {
+            .card {
+                width: 60%;
+                /* Adjust as needed */
+            }
+        }
+
+        .dropdown-item.unread {
+            font-weight: bold;
+        }
+
+        .tt-menu {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
+
 
 <body>
 
@@ -18,13 +110,29 @@
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container-fluid">
                 <a class="navbar-brand" href="#">SOI Learning Portal</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarToggler"><span class="navbar-togglericon"></span>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggler">
+                    <span class="navbar-toggler-icon" style="color: #fff;"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarToggler">
                     <ul class="navbar-nav">
                         <li class="nav-item"><a class="nav-link" href="#">About</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Courses</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="coursesDropdown" role="button"
+                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Courses
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="coursesDropdown">
+                                <a class="dropdown-item" href="#">HTML</a>
+                                <a class="dropdown-item" href="#">CSS</a>
+                                <a class="dropdown-item" href="#">PHP</a>
+                                <a class="dropdown-item" href="#">JavaScript</a>
+                                <a class="dropdown-item" href="#">Python</a>
+                                <a class="dropdown-item" href="#">Java</a>
+                                <a class="dropdown-item" href="#">iOS</a>
+                                <a class="dropdown-item" href="#">React</a>
+                            </div>
+                        </li>
+
                         <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
                     </ul>
 
@@ -35,15 +143,42 @@
                         <button class="btn btn-outline-light" type="submit">Search</button>
                     </form>
 
-                    <!-- Notifications Icon -->
-                    <a href="#" class="nav-link ms-auto">
-                        <i class="bi bi-bell-fill"></i>
+                    <!-- Notifications Dropdown -->
+                    <div class="dropdown ms-auto">
+                        <a href="#" class="nav-link dropdown-toggle" id="notificationsDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="bi bi-bell-fill"></i>
+                        </a>
+
+                        <!-- Dropdown Menu -->
+                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown">
+                            <!-- Sample unread message -->
+                            <a class="dropdown-item unread" href="#">
+                                <strong>Unread Message</strong>
+                                <p>You have unread messages.</p>
+                            </a>
+
+                            <!-- Sample read message -->
+                            <a class="dropdown-item read" href="#">
+                                <p>Read Message</p>
+                            </a>
+
+                            <!-- Add more items as needed for additional messages -->
+
+                            <!-- Divider -->
+                            <div class="dropdown-divider"></div>
+
+                            <!-- View All Messages Link -->
+                            <a class="dropdown-item" href="#">View All Messages</a>
+                        </div>
+                    </div>
+
+
+                    <a href="#" class="nav-link" id="avatarToggle">
+                        <i class="bi bi-person" id="avatarIcon" style="border: 2px solid green;"></i>
                     </a>
 
-                    <!-- Avatar Icon -->
-                    <a href="#" class="nav-link">
-                        <i class="bi bi-person"></i>
-                    </a>
+
                 </div>
             </div>
         </nav>
@@ -104,70 +239,141 @@
 
 
 
-    <div class="container-fluid" style="background-color: grey; padding-top: 120px;">
-        <h2 class="text-center">Featured courses</h2>
-        <div class="row justify-content-center">
-
-            <div class="card col-12 col-md-6 col-lg-2 m-3">
-                <img src="https://source.unsplash.com/RyLsRzy9jIA" class="card-img-top" alt="Plants">
-                <div class="card-body">
-                    <h5 class="card-title">Introduction to HTML and CSS</h5>
-                    <p class="card-text"><i class="bi bi-clock"></i> 2h 30min</p>
-
+    <div id="featuredCoursesCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="container-fluid" style="background-color: grey; padding-top: 120px;">
+            <h2 class="text-center">Featured courses</h2>
+            <div class="carousel-inner">
+                <!-- Slide 1 -->
+                <div class="carousel-item active">
+                    <div class="row justify-content-center">
+                        <!-- Card 1 -->
+                        <div class="card col-12 col-md-6 col-lg-2 m-3">
+                            <img src="images/html.jpeg" class="card-img-top" alt="Plants">
+                            <div class="card-body">
+                                <h5 class="card-title">Introduction to HTML and CSS</h5>
+                                <p class="card-text"><i class="bi bi-clock"></i> 2h 30min</p>
+                            </div>
+                            <div class="card-footer">
+                                <i class="bi bi-person-circle"></i>
+                                <p>Hannah Lim</p>
+                                <i class="bi bi-save2"></i>
+                            </div>
+                        </div>
+                        <!-- Card 2 -->
+                        <div class="card col-12 col-md-6 col-lg-2 m-3">
+                            <img src="images/uxd.png" class="card-img-top" alt="Plants">
+                            <div class="card-body">
+                                <h5 class="card-title">User Experience and Interface Design</h5>
+                                <p class="card-text"><i class="bi bi-clock"></i> 2h 45min</p>
+                            </div>
+                            <div class="card-footer">
+                                <i class="bi bi-person-circle"></i>
+                                <p>Julia Lee</p>
+                                <i class="bi bi-save2"></i>
+                            </div>
+                        </div>
+                        <!-- Card 3 -->
+                        <div class="card col-12 col-md-6 col-lg-2 m-3">
+                            <img src="images/ios.jpeg" class="card-img-top" alt="Plants">
+                            <div class="card-body">
+                                <h5 class="card-title">iOS App Development using XCode and Swift</h5>
+                                <p class="card-text"><i class="bi bi-clock"></i> 4h 30min</p>
+                            </div>
+                            <div class="card-footer">
+                                <i class="bi bi-person-circle"></i>
+                                <p>Ryan Low</p>
+                                <i class="bi bi-save2"></i>
+                            </div>
+                        </div>
+                        <!-- Card 4 -->
+                        <div class="card col-12 col-md-6 col-lg-2 m-3">
+                            <img src="images/frontend.png" class="card-img-top" alt="Plants">
+                            <div class="card-body">
+                                <h5 class="card-title">Front-end JavaScript FrameWorks</h5>
+                                <p class="card-text"><i class="bi bi-clock"></i> 3h 45min</p>
+                            </div>
+                            <div class="card-footer">
+                                <i class="bi bi-person-circle"></i>
+                                <p>Azhar Kamar</p>
+                                <i class="bi bi-save2"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-footer">
-                    <i class="bi bi-person-circle"></i>
-                    <p>Hannah Lim</p>
-                    <i class="bi bi-save2"></i>
+
+                <!-- Slide 2 -->
+                <div class="carousel-item">
+                    <div class="row justify-content-center">
+                        <!-- Card 5 -->
+                        <div class="card col-12 col-md-6 col-lg-2 m-3">
+                            <img src="images/php.jpeg" class="card-img-top" alt="Plants">
+                            <div class="card-body">
+                                <h5 class="card-title">PHP</h5>
+                                <p class="card-text"><i class="bi bi-clock"></i> 2h 30min</p>
+                            </div>
+                            <div class="card-footer">
+                                <i class="bi bi-person-circle"></i>
+                                <p>Hannah Lim</p>
+                                <i class="bi bi-save2"></i>
+                            </div>
+                        </div>
+                        <!-- Card 6 -->
+                        <div class="card col-12 col-md-6 col-lg-2 m-3">
+                            <img src="images/python.png" class="card-img-top" alt="Plants">
+                            <div class="card-body">
+                                <h5 class="card-title">Python for Data Science</h5>
+                                <p class="card-text"><i class="bi bi-clock"></i> 2h 45min</p>
+                            </div>
+                            <div class="card-footer">
+                                <i class="bi bi-person-circle"></i>
+                                <p>Julia Lee</p>
+                                <i class="bi bi-save2"></i>
+                            </div>
+                        </div>
+                        <!-- Card 7 -->
+                        <div class="card col-12 col-md-6 col-lg-2 m-3">
+                            <img src="images/java.png" class="card-img-top" alt="Plants">
+                            <div class="card-body">
+                                <h5 class="card-title">Java</h5>
+                                <p class="card-text"><i class="bi bi-clock"></i> 4h 30min</p>
+                            </div>
+                            <div class="card-footer">
+                                <i class="bi bi-person-circle"></i>
+                                <p>Ryan Low</p>
+                                <i class="bi bi-save2"></i>
+                            </div>
+                        </div>
+                        <!-- Card 8 -->
+                        <div class="card col-12 col-md-6 col-lg-2 m-3">
+                            <img src="images/reactjs.png" class="card-img-top" alt="Plants">
+                            <div class="card-body">
+                                <h5 class="card-title">React.Js Essentials</h5>
+                                <p class="card-text"><i class="bi bi-clock"></i> 3h 45min</p>
+                            </div>
+                            <div class="card-footer">
+                                <i class="bi bi-person-circle"></i>
+                                <p>Azhar Kamar</p>
+                                <i class="bi bi-save2"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="card col-12 col-md-6 col-lg-2 m-3">
-                <img src="https://source.unsplash.com/RyLsRzy9jIA" class="card-img-top" alt="Plants">
-                <div class="card-body">
-                    <h5 class="card-title">User Experience and Interface Design</h5>
-                    <p class="card-text"><i class="bi bi-clock"></i> 2h 45min</p>
 
-
-
-                </div>
-                <div class="card-footer">
-                    <i class="bi bi-person-circle"></i>
-                    <p>Julia Lee</p>
-                    <i class="bi bi-save2"></i>
-                </div>
-
-            </div>
-
-
-            <div class="card col-12 col-md-6 col-lg-2 m-3">
-                <img src="https://source.unsplash.com/RyLsRzy9jIA" class="card-img-top" alt="Plants">
-                <div class="card-body">
-                    <h5 class="card-title">iOS App Development using XCode and Swift</h5>
-                    <p class="card-text"><i class="bi bi-clock"></i> 4h 30min</p>
-
-                </div>
-                <div class="card-footer">
-                    <i class="bi bi-person-circle"></i>
-                    <p>Ryan Low</p>
-                    <i class="bi bi-save2"></i>
-                </div>
-            </div>
-
-            <div class="card col-12 col-md-6 col-lg-2 m-3">
-                <img src="https://source.unsplash.com/RyLsRzy9jIA" class="card-img-top" alt="Plants">
-                <div class="card-body">
-                    <h5 class="card-title">Front-end JavaScript FrameWorks</h5>
-                    <p class="card-text"><i class="bi bi-clock"></i>3h 45min</p>
-
-                </div>
-                <div class="card-footer">
-                    <i class="bi bi-person-circle"></i>
-                    <p>Azhar Kamar</p>
-                    <i class="bi bi-save2"></i>
-                </div>
-            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#featuredCoursesCarousel"
+                data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#featuredCoursesCarousel"
+                data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
         </div>
-    </div><br><br>
+    </div>
+
+    <br><br>
 
 
 
@@ -185,6 +391,18 @@
 
 
     </footer>
+
+
+    <!-- Offcanvas Body -->
+    <div class="offcanvas offcanvas-bottom" tabindex="-1" id="offcanvasBottom" aria-labelledby="offcanvasBottomLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="offcanvasBottomLabel">Bookmarked Courses</h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body" id="offcanvasBody">
+            <!-- Dynamically added cards will appear here -->
+        </div>
+    </div>
 
 
 
